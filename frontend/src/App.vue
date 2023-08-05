@@ -1,11 +1,12 @@
 <script setup>
-import MyMap from "./components/MyMap.vue";
+import LeafletMap from "./components/LeafletMap.vue";
+
 
 </script>
 
 <template>
   <div>
-    <MyMap />
+    <LeafletMap />
   </div>
 </template>
 
