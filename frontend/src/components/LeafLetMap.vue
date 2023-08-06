@@ -1,5 +1,5 @@
 <template>
-    <div id="map"></div>
+    <div id="map" class="z-10"></div>
 </template>
 
 <script setup>
