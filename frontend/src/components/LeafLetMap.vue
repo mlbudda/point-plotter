@@ -14,12 +14,44 @@ let map = null;
 const userLocation = ref({ lat: 51.505, lng: -0.09 }); // Default coordinates
 
 const emit = defineEmits(["markerAdded"]);
-const props = defineProps(["listOfCoordinates", "updateSignal"]);
+const props = defineProps(["listOfCoordinates", "updateSignal", "drawPolylineData"]);
 
-let prevMarker = null;
+let prevMarker = null; // Variable to store the previous marker
 let markers = [];  // Array to store all the current markers
+let polylines = [];  // Array to store all the current polylines
 
 
+function addPolylineWithLabel(coord1, coord2, distance) {
+    const latlngs = [
+        [coord1.lat, coord1.lng],
+        [coord2.lat, coord2.lng]
+    ];
+    const polyline = L.polyline(latlngs, { color: 'blue' }).addTo(map);
+    polylines.push(polyline);
+
+    // Calculate the midpoint
+    const computeMidpoint = (latlng1, latlng2) => [(latlng1[0] + latlng2[0]) / 2, (latlng1[1] + latlng2[1]) / 2];
+    const midpoint = computeMidpoint(latlngs[0], latlngs[1]);
+
+    // Create a custom L.divIcon for the distance
+    const distanceIcon = L.divIcon({
+        className: 'distance-label',
+        html: distance,
+        iconSize: [60, 25]
+    });
+
+    L.marker(midpoint, { icon: distanceIcon }).addTo(map);
+}
+
+// Remove all polylines and distance labels
+function clearPolylinesAndLabels() {
+    polylines.forEach(polyline => polyline.remove());
+    polylines = [];
+    const distanceLabel = document.querySelector('.distance-label');
+    if (distanceLabel) {
+        distanceLabel.remove();
+    }
+}
 
 // function to add a marker and its click event
 function addMarkerAndEvent(coordinate) {
@@ -48,13 +80,9 @@ function addMarkerAndEvent(coordinate) {
     markers.push(marker);  // Store this marker in the list
 }
 
+// function to refresh the markers on the map on load and on updateSignal change
 function refreshMarkers() {
-
-
-    // check if prevMarker is still in the list of markers
-    if (prevMarker && markers.includes(prevMarker)) {
-        prevMarker = null;
-    }
+    prevMarker = null; // Reset previous marker
 
     // Remove existing markers
     markers.forEach(marker => marker.remove());
@@ -100,6 +128,15 @@ onMounted(async () => {
         addMarkerAndEvent({ lat, lng });
     });
 
+    // Add the two given markers
+    const initialCoordinates = [
+        { "id": 0, "lat": 51.51579343362533, "lng": -0.13149261474609378 },
+        { "id": 1, "lat": 51.496667801322666, "lng": -0.07518768310546876 }
+    ];
+    initialCoordinates.forEach(coordinate => {
+        addMarkerAndEvent(coordinate);
+    });
+
     refreshMarkers();
 });
 
@@ -107,8 +144,19 @@ onUnmounted(() => {
     map.remove(); // Remove the map instance from memory
 });
 
+// Watch for changes in the listOfCoordinates prop
 watch(() => props.updateSignal, () => {
     refreshMarkers(); // Refresh the markers when the updateSignal changes
+});
+
+// Watch for changes in the drawPolylineData prop
+watch(() => props.drawPolylineData, (newValue) => {
+    clearPolylinesAndLabels();
+
+    if (newValue.coordPair && newValue.coordPair.length === 2) {
+        const distance = newValue.distance;
+        addPolylineWithLabel(newValue.coordPair[0], newValue.coordPair[1], distance);
+    }
 });
 
 </script>
