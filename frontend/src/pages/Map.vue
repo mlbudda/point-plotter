@@ -6,15 +6,20 @@ import { watch } from 'vue';
 
 const loggedCoordinates = ref([]);
 const updateSignal = ref(0);
+let idCounter = 0;  // Global counter
 
 const handleMapClick = (coords) => {
-    loggedCoordinates.value.push(coords);
+    const coordinateWithId = { id: idCounter++, ...coords };
+    loggedCoordinates.value.push(coordinateWithId);
 }
 
-const handleRemoveCoordinate = (index) => {
-    loggedCoordinates.value.splice(index, 1);
-    // Increment the updateSignal to tell LeafletMap to refresh markers
-    updateSignal.value++;
+const handleRemoveCoordinate = (id) => {
+    const index = loggedCoordinates.value.findIndex(coordinate => coordinate.id === id);
+    if (index !== -1) {
+        loggedCoordinates.value.splice(index, 1);
+        // Increment the updateSignal to tell LeafletMap to refresh markers
+        updateSignal.value++;
+    }
 }
 
 const handleRemoveAllCoordinates = () => {
