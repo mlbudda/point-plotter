@@ -18,17 +18,17 @@ Point Plotter is a two-page application that allows users to interact with a ful
 
 - Clear Points: Clear individual points or clear all at once for a fresh start.
 
-### Optional Features (Not Included in MVP)
+- Store History in browsers LocalStorage: Keep track of your past actions for a more personalized experience.
+
+- Enter Coordinates: Input specific coordinates manually.
+
+### Optional Features (Not Included yet)
 
 - Undo Last Action: Step back in time with an undo functionality.
 
 - Draw Radius Instead of Line: Visualize distances with a radius instead of a line.
 
-- Enter Coordinates: Input specific coordinates manually.
-
 - Render Coordinates to Friendly Names: Convert raw coordinates to more recognizable street, town, or country names.
-
-- Store History in browsers LocalStorage: Keep track of your past actions for a more personalized experience.
 
 - Backend with Login: Securely save your favorite coordinates with an optional login feature.
 
