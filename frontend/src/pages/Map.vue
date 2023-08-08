@@ -7,6 +7,7 @@ import { watch } from 'vue';
 const loggedCoordinates = ref([]);
 const updateSignal = ref(0);
 let idCounter = 0;  // Global counter
+const drawPolylineData = ref({})
 
 const handleMapClick = (coords) => {
     const coordinateWithId = { id: idCounter++, ...coords };
@@ -27,11 +28,17 @@ const handleRemoveAllCoordinates = () => {
     // // Increment the updateSignal to tell LeafletMap to refresh markers
     updateSignal.value++;
 }
+
+function updateSelectedCoordinates(data) {
+    drawPolylineData.value = data
+}
+
 </script>
 <template>
     <MarkersLog :coordinates="loggedCoordinates" @remove-all-coordinates="handleRemoveAllCoordinates"
-        @remove-coordinate="handleRemoveCoordinate" />
-    <LeafletMap @marker-added="handleMapClick" :listOfCoordinates="loggedCoordinates" :updateSignal="updateSignal" />
+        @remove-coordinate="handleRemoveCoordinate" @checked-coordinates="updateSelectedCoordinates" />
+    <LeafletMap @marker-added="handleMapClick" :listOfCoordinates="loggedCoordinates" :updateSignal="updateSignal"
+        :drawPolylineData="drawPolylineData" />
 </template>
 
 <style>

@@ -13,13 +13,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 const props = defineProps(['coordinates'])
 
 const checkedCoordinates = ref([]);
 
-const emit = defineEmits(["remove-coordinate", "remove-all-coordinates"]);
+const emit = defineEmits(["remove-coordinate", "remove-all-coordinates", "checked-coordinates"]);
 
 const removeCoordinate = (id) => {
     checkedCoordinates.value = checkedCoordinates.value.filter(coord => coord.id !== id);
@@ -35,20 +35,6 @@ const removeAllCoordinates = () => {
 const shouldDisableCheckbox = (id) => {
     const checked = checkedCoordinates.value.some(item => item.id === id)
     return checkedCoordinates.value.length === 2 && !checked;
-}
-
-// Add or remove coordinate from checkedCoordinates
-function onCheckboxChange(event, id) {
-    if (event.target.checked) {
-        if (!isChecked(id) && checkedCoordinates.value.length < 2) {
-            checkedCoordinates.value.push(id);
-        }
-    } else {
-        const index = checkedCoordinates.value.findIndex(c => c.id === id);
-        if (index > -1) {
-            checkedCoordinates.value.splice(index, 1);
-        }
-    }
 }
 
 // Calculate distance between two coordinates
@@ -84,6 +70,14 @@ const calculateDistanceBetweenSelected = computed(() => {
         return haversineDistance(coord1, coord2).toFixed(2);
     }
     return 0;
+});
+
+watch(calculateDistanceBetweenSelected, (distance) => {
+    if (distance > 0) {
+        emit('checked-coordinates', { coordPair: checkedCoordinates.value, distance: distance });
+    } else {
+        emit('checked-coordinates', {});  // Emitting an empty array to signal removal
+    }
 });
 
 </script>
