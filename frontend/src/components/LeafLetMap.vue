@@ -92,12 +92,6 @@ function refreshMarkers() {
     props.listOfCoordinates.forEach(coordinate => {
         addMarkerAndEvent(coordinate);
     });
-
-    // If we have exactly two markers, draw a line between them with a label 
-    if (props.listOfCoordinates.length === 2) {
-        const distance = "5km";  // Replace with your actual distance value from props.
-        addPolylineWithLabel(props.listOfCoordinates[0], props.listOfCoordinates[1], distance);
-    }
 }
 
 onMounted(async () => {
@@ -172,14 +166,5 @@ watch(() => props.drawPolylineData, (newValue) => {
 #map {
     height: 100vh;
     width: 100vw;
-}
-
-.distance-label {
-    background-color: white;
-    padding: 4px 8px;
-    border: 1px solid #333;
-    border-radius: 4px;
-    text-align: center;
-    font-size: 10px;
 }
 </style>

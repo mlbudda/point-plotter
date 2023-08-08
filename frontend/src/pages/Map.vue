@@ -45,4 +45,13 @@ function updateSelectedCoordinates(data) {
 img.markerhuechange {
     filter: hue-rotate(120deg);
 }
+
+.distance-label {
+    background-color: white;
+    padding: 4px 8px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 10px;
+}
 </style>

@@ -1,15 +1,25 @@
 <template>
-    <ul>
-        <li v-for="(coordinate) in  props.coordinates" :key="coordinate.id">
-            <input type="checkbox" :id="coordinate.id" :value="coordinate" v-model="checkedCoordinates"
-                :disabled="shouldDisableCheckbox(coordinate.id)" />
-            {{ coordinate.lat }}, {{ coordinate.lng }} <button class=" text-red-700"
-                @click="removeCoordinate(coordinate.id)">X</button>
-        </li>
-    </ul>
-    <button v-show="props.coordinates.length > 1" @click="removeAllCoordinates()">Clear all</button>
-    <p v-if="checkedCoordinates.length > 0">{{ checkedCoordinates }}</p>
-    <p v-if="checkedCoordinates.length === 2">Distance: {{ calculateDistanceBetweenSelected }} km</p>
+    <section v-show="props.coordinates.length > 0"
+        class=" absolute z-50 top-20 left-3 scr flex flex-col overflow-hidden rounded-sm p-4 shadow-lg shadow-gray-900/5 bg-white">
+        <ul class="overflow-y-auto max-h-60 divide-y divide-slate-200">
+            <li class="text-xs flex items-center justify-between" v-for="(coordinate) in  props.coordinates"
+                :key="coordinate.id">
+                <div class="flex items-center">
+                    <input type="checkbox" :id="coordinate.id" :value="coordinate" v-model="checkedCoordinates"
+                        :disabled="shouldDisableCheckbox(coordinate.id)" />
+                    <span class="ml-2">{{ coordinate.lat }}, {{ coordinate.lng }}</span>
+                </div>
+                <button
+                    class="inline-flex justify-center rounded-lg py-1 px-3 text-sm font-semibold outline-2 outline-offset-2 transition-color text-red-600 hover:bg-red-200 active:bg-red-400 active:text-white/80"
+                    @click="removeCoordinate(coordinate.id)">-</button>
+            </li>
+        </ul>
+        <button
+            class="inline-flex justify-center rounded-lg py-2 px-3 text-sm font-semibold outline-2 outline-offset-2 transition-colors text-black hover:bg-red-200 active:bg-red-400 active:text-white/80 mt-2"
+            v-show="props.coordinates.length > 1" @click="removeAllCoordinates()">Clear all</button>
+        <p v-if="checkedCoordinates.length === 2" class="mt-2 pt-2 border-t-2 border-slate-100">Distance: {{
+            calculateDistanceBetweenSelected }} km</p>
+    </section>
 </template>
 
 <script setup>
