@@ -1,7 +1,18 @@
 <template>
-    <section v-show="props.coordinates.length > 0"
-        class=" absolute z-50 top-20 left-3 scr flex flex-col overflow-hidden rounded-sm p-4 shadow-lg shadow-gray-900/5 bg-white">
-        <ul class="overflow-y-auto max-h-60 divide-y divide-slate-200">
+    <section
+        class=" absolute z-50 top-40 left-3 scr flex flex-col overflow-hidden rounded-sm p-4 shadow-lg shadow-gray-900/5 bg-white">
+        <form @submit.prevent="addCoordinate">
+            <input v-model="inputCoordinates" @keyup.enter="addCoordinate"
+                class="block w-full appearance-none rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-blue-500 sm:text-xs"
+                type="text" placeholder="Lat , Lng">
+            <span v-if="!isInputValid" class="block text-xs text-red-600">Invalid coordinates format. Please use "Lat ,
+                Lng".</span>
+
+            <button type="submit"
+                class="w-full inline-flex justify-center rounded-lg py-1 px-3 text-sm font-semibold outline-2 outline-offset-2 transition-color text-green-600 hover:bg-green-200 active:bg-green-400 active:text-white/80 mt-2"
+                v-show="inputCoordinates">Add</button>
+        </form>
+        <ul v-show="props.coordinates.length > 0" class="overflow-y-auto max-h-60 divide-y divide-slate-200">
             <li class="text-xs flex items-center justify-between" v-for="(coordinate) in  props.coordinates"
                 :key="coordinate.id">
                 <div class="flex items-center">
@@ -30,10 +41,12 @@ import { ref, computed, watch } from 'vue';
 
 const props = defineProps(['coordinates'])
 const checkedCoordinates = ref([]);
-let metric = ref(true)
-let distanceMiles = ref(0)
+const metric = ref(true)
+const distanceMiles = ref(0)
+const inputCoordinates = ref('')
+const isInputValid = ref(true)
 
-const emit = defineEmits(["remove-coordinate", "remove-all-coordinates", "checked-coordinates"]);
+const emit = defineEmits(["remove-coordinate", "remove-all-coordinates", "checked-coordinates", "addNewCoordinate"]);
 
 const removeCoordinate = (id) => {
     checkedCoordinates.value = checkedCoordinates.value.filter(coord => coord.id !== id);
@@ -85,6 +98,22 @@ const calculateDistanceBetweenSelected = computed(() => {
     }
     return 0;
 });
+
+function validateCoordinates() {
+    const trimmedInput = inputCoordinates.value.trim();
+    const pattern = /^-?([1-8]?[0-9]\.\d+|90\.0+),\s*-?([1-9]?[0-9]\.\d+|1[0-7][0-9]\.\d+|180\.0+)$/;
+    isInputValid.value = pattern.test(trimmedInput);
+    inputCoordinates.value = trimmedInput;
+}
+
+function addCoordinate() {
+    validateCoordinates();
+    if (isInputValid.value) {
+        const [lat, lng] = inputCoordinates.value.split(',').map(item => item.trim());
+        emit('addNewCoordinate', { lat: parseFloat(lat), lng: parseFloat(lng) });
+        inputCoordinates.value = '';
+    }
+}
 
 watch(calculateDistanceBetweenSelected, (distance) => {
     if (distance > 0) {

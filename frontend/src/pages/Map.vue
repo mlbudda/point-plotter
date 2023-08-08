@@ -12,6 +12,8 @@ const drawPolylineData = ref({})
 const handleMapClick = (coords) => {
     const coordinateWithId = { id: idCounter++, ...coords };
     loggedCoordinates.value.push(coordinateWithId);
+    // // Increment the updateSignal to tell LeafletMap to refresh markers
+    updateSignal.value++;
 }
 
 const handleRemoveCoordinate = (id) => {
@@ -36,7 +38,8 @@ function updateSelectedCoordinates(data) {
 </script>
 <template>
     <MarkersLog :coordinates="loggedCoordinates" @remove-all-coordinates="handleRemoveAllCoordinates"
-        @remove-coordinate="handleRemoveCoordinate" @checked-coordinates="updateSelectedCoordinates" />
+        @remove-coordinate="handleRemoveCoordinate" @checked-coordinates="updateSelectedCoordinates"
+        @add-new-coordinate="handleMapClick" />
     <LeafletMap @marker-added="handleMapClick" :listOfCoordinates="loggedCoordinates" :updateSignal="updateSignal"
         :drawPolylineData="drawPolylineData" />
 </template>
