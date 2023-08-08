@@ -7,6 +7,7 @@
                 type="text" placeholder="Lat , Lng">
             <span v-if="!isInputValid" class="block text-xs text-red-600">Invalid coordinates format. Please use "Lat ,
                 Lng".</span>
+            <span v-if="!isDuplicateMsg" class="block text-xs text-red-600">Very unlikely, but duplicate found!</span>
 
             <button type="submit"
                 class="w-full inline-flex justify-center rounded-lg py-1 px-3 text-sm font-semibold outline-2 outline-offset-2 transition-color text-green-600 hover:bg-green-200 active:bg-green-400 active:text-white/80 mt-2"
@@ -44,6 +45,7 @@ const checkedCoordinates = ref([]);
 const isMetric = ref(true)
 const inputCoordinates = ref('')
 const isInputValid = ref(true)
+const isDuplicateMsg = ref(true)
 
 
 const emit = defineEmits(["remove-coordinate", "remove-all-coordinates", "checked-coordinates", "addNewCoordinate"]);
@@ -114,9 +116,20 @@ function addCoordinate() {
     validateCoordinates();
     if (isInputValid.value) {
         const [lat, lng] = inputCoordinates.value.split(',').map(item => item.trim());
-        emit('addNewCoordinate', { lat: parseFloat(lat), lng: parseFloat(lng) });
-        inputCoordinates.value = '';
+        // Check for duplicates
+        const isDuplicate = props.coordinates.some(
+            coordinate => coordinate.lat === parseFloat(lat) && coordinate.lng === parseFloat(lng)
+        );
+
+        if (!isDuplicate) {
+            emit('addNewCoordinate', { lat: parseFloat(lat), lng: parseFloat(lng) });
+            inputCoordinates.value = '';
+            isDuplicateMsg.value = true;
+        } else {
+            isDuplicateMsg.value = false; // show a user feedback message
+        }
     }
+
 }
 
 watch(calculateDistanceBetweenSelected, (distance) => {
