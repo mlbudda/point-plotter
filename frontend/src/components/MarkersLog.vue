@@ -29,22 +29,22 @@
             class="inline-flex justify-center rounded-lg py-2 px-3 text-sm font-semibold outline-2 outline-offset-2 transition-colors text-black hover:bg-red-200 active:bg-red-400 active:text-white/80 mt-2"
             v-show="props.coordinates.length > 1" @click="removeAllCoordinates()">Clear all</button>
         <p v-if="checkedCoordinates.length === 2" class="mt-2 pt-2 border-t-2 border-slate-100">Distance: {{
-            metric ? calculateDistanceBetweenSelected : distanceMiles }} <button
+            calculateDistanceBetweenSelected }} <button
                 class="inline-flex justify-center rounded-lg py-1 px-1 text-sm font-semibold outline-2 outline-offset-2 transition-colors bg-slate-200 text-black hover:bg-slate-200 active:bg-slate-400 active:text-black/80"
-                @click="metric = !metric">{{ metric ? "km"
+                @click="isMetric = !isMetric">{{ isMetric ? "km"
                     : "miles" }}</button></p>
     </section>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 
 const props = defineProps(['coordinates'])
 const checkedCoordinates = ref([]);
-const metric = ref(true)
-const distanceMiles = ref(0)
+const isMetric = ref(true)
 const inputCoordinates = ref('')
 const isInputValid = ref(true)
+
 
 const emit = defineEmits(["remove-coordinate", "remove-all-coordinates", "checked-coordinates", "addNewCoordinate"]);
 
@@ -94,7 +94,10 @@ const calculateDistanceBetweenSelected = computed(() => {
     if (checkedCoordinates.value.length === 2) {
         const coord1 = checkedCoordinates.value[0];
         const coord2 = checkedCoordinates.value[1];
-        return haversineDistance(coord1, coord2).toFixed(2);
+        const distanceInKm = haversineDistance(coord1, coord2);
+        const milesConvertionRatio = 0.621371;
+        // If metric is false, convert to miles, otherwise, return km
+        return isMetric.value ? distanceInKm.toFixed(2) : (distanceInKm * milesConvertionRatio).toFixed(2);
     }
     return 0;
 });
@@ -106,6 +109,7 @@ function validateCoordinates() {
     inputCoordinates.value = trimmedInput;
 }
 
+// Add new coordinate
 function addCoordinate() {
     validateCoordinates();
     if (isInputValid.value) {
@@ -124,13 +128,21 @@ watch(calculateDistanceBetweenSelected, (distance) => {
 });
 
 // Convert km to miles
-watch(metric, (value) => {
+watch(isMetric, (value) => {
     if (!value) {
-        distanceMiles.value = (calculateDistanceBetweenSelected.value * 0.621371).toFixed(2);
-        emit('checked-coordinates', { coordPair: checkedCoordinates.value, distance: distanceMiles.value });
-    } else {
-        distanceMiles.value = 0;
         emit('checked-coordinates', { coordPair: checkedCoordinates.value, distance: calculateDistanceBetweenSelected.value });
+        localStorage.setItem('userPrefMetricImperial', JSON.stringify(isMetric.value));
+    } else {
+        emit('checked-coordinates', { coordPair: checkedCoordinates.value, distance: calculateDistanceBetweenSelected.value });
+        localStorage.setItem('userPrefMetricImperial', JSON.stringify(isMetric.value));
+    }
+})
+
+onMounted(() => {
+    // Check if user has a preference for metric or imperial
+    const userPrefMetricImperial = JSON.parse(localStorage.getItem('userPrefMetricImperial'));
+    if (userPrefMetricImperial !== null) {
+        isMetric.value = userPrefMetricImperial;
     }
 })
 
