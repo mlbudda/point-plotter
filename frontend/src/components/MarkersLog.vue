@@ -18,7 +18,10 @@
             class="inline-flex justify-center rounded-lg py-2 px-3 text-sm font-semibold outline-2 outline-offset-2 transition-colors text-black hover:bg-red-200 active:bg-red-400 active:text-white/80 mt-2"
             v-show="props.coordinates.length > 1" @click="removeAllCoordinates()">Clear all</button>
         <p v-if="checkedCoordinates.length === 2" class="mt-2 pt-2 border-t-2 border-slate-100">Distance: {{
-            calculateDistanceBetweenSelected }} km</p>
+            metric ? calculateDistanceBetweenSelected : distanceMiles }} <button
+                class="inline-flex justify-center rounded-lg py-1 px-1 text-sm font-semibold outline-2 outline-offset-2 transition-colors bg-slate-200 text-black hover:bg-slate-200 active:bg-slate-400 active:text-black/80"
+                @click="metric = !metric">{{ metric ? "km"
+                    : "miles" }}</button></p>
     </section>
 </template>
 
@@ -26,8 +29,9 @@
 import { ref, computed, watch } from 'vue';
 
 const props = defineProps(['coordinates'])
-
 const checkedCoordinates = ref([]);
+let metric = ref(true)
+let distanceMiles = ref(0)
 
 const emit = defineEmits(["remove-coordinate", "remove-all-coordinates", "checked-coordinates"]);
 
@@ -89,5 +93,16 @@ watch(calculateDistanceBetweenSelected, (distance) => {
         emit('checked-coordinates', {});  // Emitting an empty array to signal removal
     }
 });
+
+// Convert km to miles
+watch(metric, (value) => {
+    if (!value) {
+        distanceMiles.value = (calculateDistanceBetweenSelected.value * 0.621371).toFixed(2);
+        emit('checked-coordinates', { coordPair: checkedCoordinates.value, distance: distanceMiles.value });
+    } else {
+        distanceMiles.value = 0;
+        emit('checked-coordinates', { coordPair: checkedCoordinates.value, distance: calculateDistanceBetweenSelected.value });
+    }
+})
 
 </script>
