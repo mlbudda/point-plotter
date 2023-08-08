@@ -1,8 +1,7 @@
 <script setup>
 import LeafletMap from '../components/LeafletMap.vue';
 import MarkersLog from '../components/MarkersLog.vue';
-import { ref } from 'vue';
-import { watch } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const loggedCoordinates = ref([]);
 const updateSignal = ref(0);
@@ -12,6 +11,10 @@ const drawPolylineData = ref({})
 const handleMapClick = (coords) => {
     const coordinateWithId = { id: idCounter++, ...coords };
     loggedCoordinates.value.push(coordinateWithId);
+
+    // Save the updated coordinates to localStorage
+    localStorage.setItem('loggedCoordinates', JSON.stringify(loggedCoordinates.value));
+
     // // Increment the updateSignal to tell LeafletMap to refresh markers
     updateSignal.value++;
 }
@@ -23,10 +26,13 @@ const handleRemoveCoordinate = (id) => {
         // Increment the updateSignal to tell LeafletMap to refresh markers
         updateSignal.value++;
     }
+    // Update localStorage with the new list of coordinates
+    localStorage.setItem('loggedCoordinates', JSON.stringify(loggedCoordinates.value));
 }
 
 const handleRemoveAllCoordinates = () => {
     loggedCoordinates.value = [];
+    localStorage.removeItem('loggedCoordinates');
     // // Increment the updateSignal to tell LeafletMap to refresh markers
     updateSignal.value++;
 }
@@ -34,6 +40,28 @@ const handleRemoveAllCoordinates = () => {
 function updateSelectedCoordinates(data) {
     drawPolylineData.value = data
 }
+
+
+onMounted(() => {
+    // Get the coordinates from localStorage
+    const storedCoordsString = localStorage.getItem('loggedCoordinates');
+
+    if (storedCoordsString) {
+        // Parse the stored string to convert it back to an array
+        const storedCoords = JSON.parse(storedCoordsString);
+
+        // Assign the parsed array to loggedCoordinates
+        loggedCoordinates.value = storedCoords;
+
+        // update the idCounter based on the highest id in the storedCoords
+        if (storedCoords.length > 0) {
+            idCounter = Math.max(...storedCoords.map(coord => coord.id)) + 1;
+        }
+
+        // Increment the updateSignal to tell LeafletMap to refresh markers
+        updateSignal.value++;
+    }
+});
 
 </script>
 <template>
