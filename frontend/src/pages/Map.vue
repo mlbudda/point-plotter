@@ -9,7 +9,6 @@ const updateSignal = ref(0);
 
 const handleMapClick = (coords) => {
     loggedCoordinates.value.push(coords);
-    console.log(loggedCoordinates.value);
 }
 
 const handleRemoveCoordinate = (index) => {
