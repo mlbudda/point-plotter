@@ -1,5 +1,5 @@
 <script setup>
-import LeafletMap from '../components/LeafletMap.vue';
+import LeafletMap from '../components/LeafLetMap.vue';
 import MarkersLog from '../components/MarkersLog.vue';
 import { ref, onMounted } from 'vue';
 
