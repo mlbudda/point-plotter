@@ -45,7 +45,7 @@ Point Plotter is a two-page application that allows users to interact with a ful
 1. Clone the repository:
 
 ```bash
-git clone URL_OF_YOUR_GITHUB_REPO
+git clone https://github.com/mlbudda/point-plotter.git
 ```
 
 2. Navigate to the project folder and install dependencies:
